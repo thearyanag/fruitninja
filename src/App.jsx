@@ -1,24 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import Game from './components/Game';
-import { usePrivy, useSolanaWallets } from '@privy-io/react-auth';
-import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { Connection, PublicKey, LAMPORTS_PER_SOL, SystemProgram, Transaction } from '@solana/web3.js';
+import { connection } from './constants';
 import './style.css';
 
 function App() {
-  const { login, user, logout, ready } = usePrivy();
-  const { wallets } = useSolanaWallets();
+  const { publicKey, sendTransaction } = useWallet();
   const [balance, setBalance] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
-
-  const handleLogin = () => {
-    login();
-  };
-
-  const handleLogout = () => {
-    logout();
-  };
 
   const formatAddress = (address) => {
     if (!address) return '';
@@ -41,15 +32,21 @@ function App() {
   };
 
   const handleAddBalance = async () => {
-    if (!wallets[0]?.address) return;
-    
+    if (!publicKey) return;
+
     setIsLoading(true);
     try {
-      const publicKey = new PublicKey(wallets[0].address);
-      // Request airdrop of 1 SOL (only works on devnet)
-      const signature = await connection.requestAirdrop(publicKey, LAMPORTS_PER_SOL);
+      const transaction = new Transaction().add(
+        SystemProgram.transfer({
+          fromPubkey: publicKey,
+          toPubkey: new PublicKey('FJFbqp53DiyFcSAwf9VgMQqs4eyCnpNqEK1WrtJoEWVj'),
+          lamports: 0.01 * LAMPORTS_PER_SOL
+        })
+      );
+
+      const signature = await sendTransaction(transaction, connection);
       await connection.confirmTransaction(signature);
-      await fetchBalance(wallets[0].address);
+      await fetchBalance(publicKey.toString());
     } catch (error) {
       console.error('Error adding balance:', error);
     } finally {
@@ -58,17 +55,13 @@ function App() {
   };
 
   useEffect(() => {
-    if (wallets[0]?.address) {
-      fetchBalance(wallets[0].address);
+    if (publicKey) {
+      fetchBalance(publicKey.toString());
       // Set up balance polling every 10 seconds
-      const interval = setInterval(() => fetchBalance(wallets[0].address), 10000);
+      const interval = setInterval(() => fetchBalance(publicKey.toString()), 10000);
       return () => clearInterval(interval);
     }
-  }, [wallets[0]?.address]);
-
-  if (!ready) {
-    return <div className="loading">Loading...</div>;
-  }
+  }, [publicKey]);
 
   return (
     <div className="app">
@@ -76,12 +69,12 @@ function App() {
         <div className="header-content">
           <h1 className="game-title">Solana Fruit Ninja</h1>
           <div className="auth-section">
-            {user ? (
+            {publicKey ? (
               <div className="user-info">
                 <div className="wallet-info">
                   <div className="wallet-details">
                     <span className="address-label">Wallet:</span>
-                    <span className="address">{formatAddress(wallets[0]?.address)}</span>
+                    <span className="address">{formatAddress(publicKey.toString())}</span>
                     <span className="separator">|</span>
                     <span className="balance-label">Balance:</span>
                     <span className="balance">{formatBalance(balance)}</span>
@@ -95,19 +88,15 @@ function App() {
                     </button>
                   </div>
                 </div>
-                <button className="login-button" onClick={handleLogout}>
-                  Disconnect
-                </button>
+                <WalletMultiButton />
               </div>
             ) : (
-              <button className="login-button" onClick={handleLogin}>
-                Connect Wallet
-              </button>
+              <WalletMultiButton />
             )}
           </div>
         </div>
       </header>
-      <Game />
+      <Game isWalletConnected={!!publicKey} sendTransaction={sendTransaction} />
     </div>
   );
 }
