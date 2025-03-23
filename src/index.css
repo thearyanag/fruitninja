@@ -1,0 +1,34 @@
+@font-face {
+  font-family: 'PP Neue Bit';
+  src: url('/fonts/ppneuebit-bold.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'PP Neue Bit', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  background: linear-gradient(180deg,
+    #1a1a1a 0%,
+    #1f1f1f 25%,
+    #232323 50%,
+    #262626 75%,
+    #0a0a0a 100%
+  );
+  min-height: 100vh;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+} 

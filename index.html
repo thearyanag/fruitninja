@@ -45,26 +45,7 @@
     </style>
   </head>
   <body>
-    <div class="game-container">
-      <div id="start-screen" class="screen">
-        <h1 class="cyberpunk-title">Fruit Ninja</h1>
-        <button id="play-button">Play</button>
-      </div>
-      
-      <div id="game-screen" class="screen hidden">
-        <div class="hud">
-          <div class="score">Score: <span id="score">0</span></div>
-          <div class="lives">Lives: <span id="lives">3</span></div>
-        </div>
-        <canvas id="gameCanvas"></canvas>
-      </div>
-
-      <div id="game-over-screen" class="screen hidden">
-        <h1 class="cyberpunk-title">Game Over</h1>
-        <p>Final Score: <span id="final-score">0</span></p>
-        <button id="play-again-button">Play Again</button>
-      </div>
-    </div>
-    <script type="module" src="/src/main.js"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html> 

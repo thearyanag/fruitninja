@@ -4,8 +4,8 @@ class Fruit {
     this.x = x;
     this.y = y;
     this.radius = 30;
-    this.velocityX = (Math.random() - 0.5) * 4; // Reduced horizontal movement
-    this.velocityY = -15 - Math.random() * 3; // Reduced initial upward velocity
+    this.velocityX = (Math.random() - 0.5) * 2; // Reduced horizontal movement from 4 to 2
+    this.velocityY = -10 - Math.random() * 2; // Reduced initial upward velocity from -15 to -10
     this.rotation = 0;
     this.rotationSpeed = (Math.random() - 0.5) * 0.1; // Reduced rotation speed
     this.sliced = false;
@@ -28,7 +28,7 @@ class Fruit {
     if (!this.sliced) {
       this.x += this.velocityX;
       this.y += this.velocityY;
-      this.velocityY += 0.3; // Reduced gravity
+      this.velocityY += 0.2; // Reduced gravity from 0.3 to 0.2
       this.rotation += this.rotationSpeed;
     } else {
       // Update sliced halves
@@ -148,6 +148,21 @@ export class Game {
     this.lastTime = 0;
     this.fruitSpawnTimer = 0;
     this.isGameRunning = false;
+    this.lives = 3;
+    this.score = 0;
+
+    // Load custom font
+    const fontFace = new FontFace('PPNeueBit', 'url(/fonts/ppneuebit-bold.otf)');
+    fontFace.load().then(font => {
+      document.fonts.add(font);
+      console.log('Custom font loaded successfully');
+    }).catch(error => {
+      console.error('Error loading custom font:', error);
+    });
+
+    // Load background image
+    this.backgroundImage = new Image();
+    this.backgroundImage.src = 'assets/bg/bg.jpeg';
 
     // Mouse/touch events
     this.canvas.addEventListener('mousedown', (e) => this.startSlice(e));
@@ -169,6 +184,8 @@ export class Game {
     this.isGameRunning = true;
     this.lastTime = performance.now();
     this.fruitSpawnTimer = 0;
+    this.lives = 3;
+    this.score = 0;
   }
 
   spawnFruit() {
@@ -186,8 +203,10 @@ export class Game {
 
   startSlice(e) {
     const rect = this.canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const scaleX = this.canvas.width / rect.width;
+    const scaleY = this.canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
     this.slicePoints = [{x, y}];
   }
 
@@ -195,8 +214,10 @@ export class Game {
     if (this.slicePoints.length === 0) return;
     
     const rect = this.canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const scaleX = this.canvas.width / rect.width;
+    const scaleY = this.canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
     this.slicePoints.push({x, y});
 
     // Keep only last 10 points for trail effect
@@ -265,13 +286,14 @@ export class Game {
   }
 
   update(currentTime) {
+    // Clear canvas and draw background - do this regardless of game state
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.drawImage(this.backgroundImage, 0, 0, this.canvas.width, this.canvas.height);
+
+    if (!this.isGameRunning) return;
+
     const deltaTime = (currentTime - this.lastTime) / 1000;
     this.lastTime = currentTime;
-
-    if (!this.isGameRunning) {
-      console.log('Game not running, skipping update');
-      return { gameOver: false, missedFruits: 0, slicedFruits: 0, hitBomb: false };
-    }
 
     this.fruitSpawnTimer += deltaTime;
     if (this.fruitSpawnTimer > 1.5) {
@@ -279,16 +301,13 @@ export class Game {
       this.fruitSpawnTimer = 0;
     }
 
-    let missedFruits = 0;
     // Update and draw fruits
     this.fruits = this.fruits.filter(fruit => {
       fruit.update();
       fruit.draw(this.ctx);
 
       if (fruit.y > this.canvas.height + 50) {
-        if (!fruit.sliced) {
-          missedFruits++;
-        }
+        // Remove missed fruits without affecting lives
         return false;
       }
       return true;
@@ -318,14 +337,24 @@ export class Game {
       this.ctx.stroke();
     }
 
-    // Check collisions
+    // Check collisions and update score
     const { slicedFruits, hitBomb } = this.checkCollisions();
+    this.score += slicedFruits * 10;
+
+    // Check game-ending conditions - only when a bomb is sliced
+    if (hitBomb) {
+      this.lives--;
+      if (this.lives <= 0) {
+        this.stop();
+      }
+    }
 
     return {
-      gameOver: false,
-      missedFruits,
+      gameOver: this.lives <= 0,
       slicedFruits,
-      hitBomb
+      hitBomb,
+      lives: this.lives,
+      score: this.score
     };
   }
 
