@@ -3,6 +3,7 @@ import { Game as GameLogic } from '../game';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, Transaction, SystemProgram, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { connection } from '../constants';
+import { getSliceReward, transferTokens } from '../token';
 
 const Game = ({ isWalletConnected = false, sendTransaction }) => {
   const [gameState, setGameState] = useState({
@@ -11,12 +12,34 @@ const Game = ({ isWalletConnected = false, sendTransaction }) => {
     isPlaying: false
   });
   const [isProcessing, setIsProcessing] = useState(false);
+  const [copyStatus, setCopyStatus] = useState({ house: false, contract: false });
+  const [rewardStatus, setRewardStatus] = useState({ loading: false, success: false, error: null });
   const { publicKey } = useWallet();
 
   const [currentScreen, setCurrentScreen] = useState('start'); // 'start', 'game', 'gameOver'
   const canvasRef = useRef(null);
   const gameInstanceRef = useRef(null);
   const animationFrameRef = useRef(null);
+
+  const HOUSE_ADDRESS = "FJFbqp53DiyFcSAwf9VgMQqs4eyCnpNqEK1WrtJoEWVj";
+  const CONTRACT_ADDRESS = '5H7zBHxqGZyGkvhnWT2HTcEHoXuCkehzzdeANnt5pump';
+
+  const formatAddress = (address) => {
+    if (!address) return '---';
+    return `${address.toString().slice(0, 6)}...${address.toString().slice(-4)}`;
+  };
+
+  const copyToClipboard = async (text, type) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopyStatus(prev => ({ ...prev, [type]: true }));
+      setTimeout(() => {
+        setCopyStatus(prev => ({ ...prev, [type]: false }));
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
 
   // Initialize game
   const initGame = async () => {
@@ -124,7 +147,7 @@ const Game = ({ isWalletConnected = false, sendTransaction }) => {
   };
 
   // Game over
-  const gameOver = () => {
+  const gameOver = async () => {
     setGameState(prev => ({ ...prev, isPlaying: false }));
     if (gameInstanceRef.current) {
       gameInstanceRef.current.stop();
@@ -133,6 +156,21 @@ const Game = ({ isWalletConnected = false, sendTransaction }) => {
       cancelAnimationFrame(animationFrameRef.current);
     }
     setCurrentScreen('gameOver');
+
+    // Calculate and transfer token reward
+    if (publicKey && gameState.score > 0) {
+      setRewardStatus({ loading: true, success: false, error: null });
+      try {
+        const rewardAmount = getSliceReward(gameState.score);
+        if (rewardAmount > 0) {
+          await transferTokens(connection, publicKey, publicKey, rewardAmount);
+          setRewardStatus({ loading: false, success: true, error: null });
+        }
+      } catch (error) {
+        console.error('Error transferring reward:', error);
+        setRewardStatus({ loading: false, success: false, error: error.message });
+      }
+    }
   };
 
   // Handle canvas resize
@@ -157,44 +195,152 @@ const Game = ({ isWalletConnected = false, sendTransaction }) => {
     };
   }, []);
 
+  const [isClaimed, setIsClaimed] = useState(false);
+  const [isClaimProcessing, setIsClaimProcessing] = useState(false);
+
+  const handleClaim = async () => {
+    if (!publicKey || !gameState.score) {
+      console.log('Cannot claim: missing wallet or score', { publicKey: !!publicKey, score: gameState.score });
+      return;
+    }
+    
+    setIsClaimProcessing(true);
+    setRewardStatus({ loading: true, success: false, error: null });
+    
+    try {
+      const rewardAmount = getSliceReward(gameState.score);
+      console.log('Calculating reward:', { score: gameState.score, rewardAmount });
+      
+      if (rewardAmount > 0) {
+        console.log('Initiating claim process...');
+        await transferTokens(publicKey.toString(), gameState.score);
+        console.log('Claim successful');
+        setRewardStatus({ 
+          loading: false, 
+          success: true, 
+          error: null,
+          message: `Successfully claimed ${rewardAmount} tokens!`
+        });
+        setIsClaimed(true);
+      } else {
+        setRewardStatus({ 
+          loading: false, 
+          success: false, 
+          error: 'Score too low to receive rewards'
+        });
+      }
+    } catch (error) {
+      console.error('Error claiming reward:', error);
+      setRewardStatus({ 
+        loading: false, 
+        success: false, 
+        error: error.message || 'Failed to claim reward'
+      });
+    } finally {
+      setIsClaimProcessing(false);
+    }
+  };
+
+  const resetGame = () => {
+    setIsClaimed(false);
+    setIsClaimProcessing(false);
+    initGame();
+  };
+
   return (
-    <div className="game-container">
-      {currentScreen === 'start' && (
-        <div className="screen start-screen">
-          <h1 className="cyberpunk-title">Fruit Ninja</h1>
-          <button 
-            onClick={initGame} 
-            disabled={!isWalletConnected || isProcessing}
-            className={(!isWalletConnected || isProcessing) ? 'disabled' : ''}
-          >
-            {isProcessing ? 'Processing...' : 'Play'}
-          </button>
-          {!isWalletConnected && (
-            <p className="wallet-message">Connect your wallet to play</p>
-          )}
-          {isProcessing && (
-            <p className="wallet-message processing">Processing transaction...</p>
-          )}
-        </div>
-      )}
-
-      {currentScreen === 'game' && (
-        <div className="screen game-screen">
-          <div className="hud">
-            <div className="score">Score: {gameState.score}</div>
-            <div className="lives">Lives: {gameState.lives}</div>
+    <div className="game-wrapper">
+      <div className="address-info">
+        <div className="address-field">
+          <span className="address-label">House Wallet:</span>
+          <div className="address-copy-wrapper">
+            <span className="address-value">{formatAddress(HOUSE_ADDRESS)}</span>
+            <button 
+              className={`copy-button ${copyStatus.house ? 'copied' : ''}`}
+              onClick={() => copyToClipboard(HOUSE_ADDRESS, 'house')}
+              title="Copy address"
+            >
+              {copyStatus.house ? '✓' : '📋'}
+            </button>
           </div>
-          <canvas ref={canvasRef} id="gameCanvas" />
         </div>
-      )}
+        <div className="address-field">
+          <span className="address-label">Contract Address:</span>
+          <div className="address-copy-wrapper">
+            <span className="address-value">{formatAddress(CONTRACT_ADDRESS)}</span>
+            <button 
+              className={`copy-button ${copyStatus.contract ? 'copied' : ''}`}
+              onClick={() => copyToClipboard(CONTRACT_ADDRESS, 'contract')}
+              title="Copy address"
+            >
+              {copyStatus.contract ? '✓' : '📋'}
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div className="game-container">
+        {currentScreen === 'start' && (
+          <div className="screen start-screen">
+            <h1 className="cyberpunk-title">Fruit Ninja</h1>
+            <button 
+              onClick={initGame} 
+              disabled={!isWalletConnected || isProcessing}
+              className={(!isWalletConnected || isProcessing) ? 'disabled' : ''}
+            >
+              {isProcessing ? 'Processing...' : 'Play'}
+            </button>
+            {!isWalletConnected && (
+              <p className="wallet-message">Connect your wallet to play</p>
+            )}
+            {isProcessing && (
+              <p className="wallet-message processing">Processing transaction...</p>
+            )}
+          </div>
+        )}
 
-      {currentScreen === 'gameOver' && (
-        <div className="screen game-over-screen">
-          <h2 className="cyberpunk-title">Game Over</h2>
-          <p>Final Score: {gameState.score}</p>
-          <button onClick={initGame}>Play Again</button>
-        </div>
-      )}
+        {currentScreen === 'game' && (
+          <div className="screen game-screen">
+            <div className="hud">
+              <div className="score">Score: {gameState.score}</div>
+              <div className="lives">Lives: {gameState.lives}</div>
+            </div>
+            <canvas ref={canvasRef} id="gameCanvas" />
+          </div>
+        )}
+
+        {currentScreen === 'gameOver' && (
+          <div className="screen game-over-screen">
+            <h2 className="cyberpunk-title">Game Over</h2>
+            <div id="final-score">Final Score: {gameState.score}</div>
+            {rewardStatus.loading && (
+              <p className="reward-status loading">Processing your reward...</p>
+            )}
+            {rewardStatus.success && (
+              <p className="reward-status success">
+                Congratulations! You earned {getSliceReward(gameState.score)} tokens!
+              </p>
+            )}
+            {rewardStatus.error && (
+              <p className="reward-status error">
+                Error processing reward: {rewardStatus.error}
+              </p>
+            )}
+            {!isClaimed ? (
+              <button 
+                className={`claim-button ${isClaimProcessing ? 'processing' : ''}`}
+                onClick={handleClaim}
+                disabled={isClaimProcessing}
+              >
+                {isClaimProcessing ? 'Claiming...' : 'Claim Now'}
+              </button>
+            ) : (
+              <button onClick={resetGame} className="play-again-button">
+                Play Again
+              </button>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

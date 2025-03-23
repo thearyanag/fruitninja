@@ -488,3 +488,275 @@ button:focus-visible {
   cursor: not-allowed;
   transform: none;
 }
+
+.start-screen button {
+  padding: 15px 30px;
+  font-size: 24px;
+  background: #00ff9d;
+  border: none;
+  color: #000;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'PPNeueBit', monospace;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px rgba(0, 255, 157, 0.5);
+}
+
+.start-screen button:hover {
+  background: #00cc7d;
+  box-shadow: 0 0 25px rgba(0, 255, 157, 0.7);
+}
+
+.start-screen button.disabled {
+  background: #666;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+.start-screen button.disabled:hover {
+  background: #666;
+  box-shadow: none;
+}
+
+.wallet-message {
+  margin-top: 20px;
+  color: #ff3e3e;
+  font-size: 18px;
+  text-shadow: 0 0 10px rgba(255, 62, 62, 0.5);
+  font-family: 'PPNeueBit', monospace;
+}
+
+.wallet-message.processing {
+  color: #00ff9d;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.start-screen button:disabled {
+  background: #666;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+.start-screen button:disabled:hover {
+  background: #666;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Address Info Styles */
+.game-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.address-info {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid #00ff9d;
+  border-radius: 8px;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 0 15px rgba(0, 255, 157, 0.2);
+  backdrop-filter: blur(5px);
+}
+
+.address-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 300px;
+}
+
+.address-label {
+  color: #888;
+  font-family: 'PPNeueBit', monospace;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.address-value {
+  color: #00ff9d;
+  font-family: 'PPNeueBit', monospace;
+  font-size: 16px;
+  padding: 4px 8px;
+  background: rgba(0, 255, 157, 0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(0, 255, 157, 0.3);
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .address-info {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .address-field {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .address-copy-wrapper {
+    flex-shrink: 0;
+  }
+}
+
+.address-copy-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.copy-button {
+  background: transparent;
+  border: 1px solid rgba(0, 255, 157, 0.3);
+  color: #00ff9d;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  backdrop-filter: blur(5px);
+}
+
+.copy-button:hover {
+  background: rgba(0, 255, 157, 0.1);
+  border-color: #00ff9d;
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(0, 255, 157, 0.3);
+}
+
+.copy-button.copied {
+  background: rgba(0, 255, 157, 0.2);
+  color: #fff;
+  border-color: #00ff9d;
+}
+
+.copy-button:active {
+  transform: scale(0.95);
+}
+
+.reward-status {
+  font-size: 1.2em;
+  margin: 20px 0;
+  padding: 10px 20px;
+  border-radius: 5px;
+  text-align: center;
+  font-family: 'PP Neue Bit', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.reward-status.loading {
+  color: #00ff9d;
+  background: rgba(0, 255, 157, 0.1);
+  border: 1px solid #00ff9d;
+  animation: pulse 1.5s infinite;
+}
+
+.reward-status.success {
+  color: #00ff9d;
+  background: rgba(0, 255, 157, 0.1);
+  border: 1px solid #00ff9d;
+  text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+}
+
+.reward-status.error {
+  color: #ff3e3e;
+  background: rgba(255, 62, 62, 0.1);
+  border: 1px solid #ff3e3e;
+  text-shadow: 0 0 10px rgba(255, 62, 62, 0.5);
+}
+
+.claim-button {
+  padding: 15px 30px;
+  font-size: 24px;
+  background: linear-gradient(135deg, #00ff9d 0%, #00cc7d 100%);
+  border: none;
+  color: #000;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'PPNeueBit', monospace;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(0, 255, 157, 0.5);
+  margin-top: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.claim-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(0, 255, 157, 0.7);
+}
+
+.claim-button.processing {
+  background: linear-gradient(135deg, #666 0%, #444 100%);
+  cursor: not-allowed;
+  animation: pulse 1.5s infinite;
+}
+
+.claim-button.processing:hover {
+  transform: none;
+  box-shadow: 0 0 20px rgba(0, 255, 157, 0.5);
+}
+
+.play-again-button {
+  padding: 15px 30px;
+  font-size: 24px;
+  background: linear-gradient(135deg, #676FFF 0%, #4B51E8 100%);
+  border: none;
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'PPNeueBit', monospace;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(103, 111, 255, 0.5);
+  margin-top: 20px;
+}
+
+.play-again-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(103, 111, 255, 0.7);
+}
+
+.final-score {
+  font-size: 28px;
+  color: #00ff9d;
+  margin: 20px 0;
+  font-family: 'PPNeueBit', monospace;
+  text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+}
