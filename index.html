@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fruit Ninja</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+      
+      .cyberpunk-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 4rem;
+        text-transform: uppercase;
+        color: #fff;
+        text-shadow: 
+          0 0 5px #fff,
+          0 0 10px #fff,
+          0 0 20px #ff00de,
+          0 0 30px #ff00de,
+          0 0 40px #ff00de;
+        animation: glow 2s ease-in-out infinite alternate;
+        margin-bottom: 2rem;
+        letter-spacing: 4px;
+      }
+
+      @keyframes glow {
+        from {
+          text-shadow: 
+            0 0 5px #fff,
+            0 0 10px #fff,
+            0 0 20px #ff00de,
+            0 0 30px #ff00de,
+            0 0 40px #ff00de;
+        }
+        to {
+          text-shadow: 
+            0 0 10px #fff,
+            0 0 20px #fff,
+            0 0 30px #ff00de,
+            0 0 40px #ff00de,
+            0 0 50px #ff00de;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="game-container">
+      <div id="start-screen" class="screen">
+        <h1 class="cyberpunk-title">Fruit Ninja</h1>
+        <button id="play-button">Play</button>
+      </div>
+      
+      <div id="game-screen" class="screen hidden">
+        <div class="hud">
+          <div class="score">Score: <span id="score">0</span></div>
+          <div class="lives">Lives: <span id="lives">3</span></div>
+        </div>
+        <canvas id="gameCanvas"></canvas>
+      </div>
+
+      <div id="game-over-screen" class="screen hidden">
+        <h1 class="cyberpunk-title">Game Over</h1>
+        <p>Final Score: <span id="final-score">0</span></p>
+        <button id="play-again-button">Play Again</button>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html> 

@@ -1,0 +1,12 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Apple Body -->
+  <path d="M50 10 Q60 10 70 20 Q80 30 80 50 Q80 70 70 80 Q60 90 50 90 Q40 90 30 80 Q20 70 20 50 Q20 30 30 20 Q40 10 50 10" fill="#ff0000"/>
+  <!-- Apple Shine -->
+  <path d="M40 20 Q50 15 60 20 Q70 25 65 40 Q60 55 50 60 Q40 65 35 50 Q30 35 40 20" fill="#ffcccc" opacity="0.3"/>
+  <!-- Apple Stem -->
+  <path d="M60 10 Q55 5 50 10" fill="none" stroke="#8b4513" stroke-width="3"/>
+  <!-- Apple Leaf -->
+  <path d="M55 10 Q50 5 45 10 Q40 15 45 20 Q50 25 55 20 Q60 15 55 10" fill="#228B22" stroke="#228B22" stroke-width="1"/>
+  <!-- Apple Highlight -->
+  <path d="M30 30 Q40 25 50 30" fill="none" stroke="#ffcccc" stroke-width="2" opacity="0.5"/>
+</svg> 

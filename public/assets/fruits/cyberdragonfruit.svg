@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main body -->
+  <circle cx="30" cy="30" r="25" fill="#FF69B4" />
+  
+  <!-- Cyber scales -->
+  <g fill="#FF1493">
+    <path d="M15,30 Q30,15 45,30 Q30,45 15,30" />
+    <path d="M30,15 Q45,30 30,45 Q15,30 30,15" />
+    <path d="M20,20 Q30,10 40,20 Q30,30 20,20" />
+    <path d="M40,40 Q30,50 20,40 Q30,30 40,40" />
+  </g>
+  
+  <!-- Glowing effect -->
+  <circle cx="30" cy="30" r="28" fill="none" stroke="#FF69B4" stroke-width="2" opacity="0.5">
+    <animate attributeName="r" values="28;30;28" dur="2s" repeatCount="indefinite" />
+  </circle>
+  
+  <!-- Circuit lines -->
+  <g stroke="#FF1493" stroke-width="1" fill="none">
+    <path d="M10,30 L20,30" />
+    <path d="M40,30 L50,30" />
+    <path d="M30,10 L30,20" />
+    <path d="M30,40 L30,50" />
+  </g>
+</svg> 
