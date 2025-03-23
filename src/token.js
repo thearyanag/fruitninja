@@ -7,7 +7,7 @@ const TOKEN_MINT = new PublicKey('5H7zBHxqGZyGkvhnWT2HTcEHoXuCkehzzdeANnt5pump')
 const HOUSE_WALLET = new PublicKey('FJFbqp53DiyFcSAwf9VgMQqs4eyCnpNqEK1WrtJoEWVj');
 
 // Calculate reward based on score
-function getSliceReward(score) {
+export function getSliceReward(score) {
   if (score < 20) return 0; 
   if (score < 40) return 500;
   if (score < 60) return 1000;
@@ -16,6 +16,7 @@ function getSliceReward(score) {
   if (score < 120) return 3000;
   return 6000;
 }
+
 // Debug environment variables
 console.log('Environment variables:', {
   VITE_AUTH_TOKEN: import.meta.env.VITE_AUTH_TOKEN,
