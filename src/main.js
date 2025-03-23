@@ -1,5 +1,9 @@
 import './style.css'
 import { Game } from './game.js'
+import { inject } from '@vercel/analytics'
+
+// Initialize Vercel Analytics
+inject()
 
 // Game state
 let gameState = {
