@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Game from './components/Game';
-import { usePrivy, useSolanaWallets } from '@privy-io/react-auth';
+import { usePrivy, useSolanaWallets  } from '@privy-io/react-auth';
+import { useFundWallet , useSendTransaction } from '@privy-io/react-auth/solana';
 import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { connection } from './constants';
 import './style.css';
 
 function App() {
@@ -9,8 +11,9 @@ function App() {
   const { wallets } = useSolanaWallets();
   const [balance, setBalance] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { sendTransaction } = useSendTransaction();
+  const { fundWallet } = useFundWallet();
 
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
 
   const handleLogin = () => {
     login();
@@ -42,13 +45,14 @@ function App() {
 
   const handleAddBalance = async () => {
     if (!wallets[0]?.address) return;
-    
+
+    console.log('Funding wallet:', wallets[0].address);
+
     setIsLoading(true);
     try {
-      const publicKey = new PublicKey(wallets[0].address);
-      // Request airdrop of 1 SOL (only works on devnet)
-      const signature = await connection.requestAirdrop(publicKey, LAMPORTS_PER_SOL);
-      await connection.confirmTransaction(signature);
+      await fundWallet(wallets[0].address, {
+        amount: 0.01,
+      });
       await fetchBalance(wallets[0].address);
     } catch (error) {
       console.error('Error adding balance:', error);
@@ -107,7 +111,7 @@ function App() {
           </div>
         </div>
       </header>
-      <Game />
+      <Game isWalletConnected={user && wallets[0]?.address} sendTransaction={sendTransaction} />
     </div>
   );
 }

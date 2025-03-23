@@ -488,3 +488,75 @@ button:focus-visible {
   cursor: not-allowed;
   transform: none;
 }
+
+.start-screen button {
+  padding: 15px 30px;
+  font-size: 24px;
+  background: #00ff9d;
+  border: none;
+  color: #000;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'PPNeueBit', monospace;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px rgba(0, 255, 157, 0.5);
+}
+
+.start-screen button:hover {
+  background: #00cc7d;
+  box-shadow: 0 0 25px rgba(0, 255, 157, 0.7);
+}
+
+.start-screen button.disabled {
+  background: #666;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+.start-screen button.disabled:hover {
+  background: #666;
+  box-shadow: none;
+}
+
+.wallet-message {
+  margin-top: 20px;
+  color: #ff3e3e;
+  font-size: 18px;
+  text-shadow: 0 0 10px rgba(255, 62, 62, 0.5);
+  font-family: 'PPNeueBit', monospace;
+}
+
+.wallet-message.processing {
+  color: #00ff9d;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.start-screen button:disabled {
+  background: #666;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+.start-screen button:disabled:hover {
+  background: #666;
+  box-shadow: none;
+  transform: none;
+}
