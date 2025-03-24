@@ -6,7 +6,7 @@ const TOKEN_MINT = new PublicKey('5H7zBHxqGZyGkvhnWT2HTcEHoXuCkehzzdeANnt5pump')
 // House wallet address that will send the rewards
 const HOUSE_WALLET = new PublicKey('FJFbqp53DiyFcSAwf9VgMQqs4eyCnpNqEK1WrtJoEWVj');
 
-const BACKEND_URL = process.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const BACKEND_URL = process.env.VITE_BACKEND_URL || 'https://fnbe-production.up.railway.app';
 
 // Calculate reward based on score
 export function getSliceReward(score, playerAddress) {
