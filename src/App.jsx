@@ -74,6 +74,9 @@ function App() {
         </div>
       </header>
       <Game isWalletConnected={!!publicKey} sendTransaction={sendTransaction} />
+      <footer className="footer">
+        The game wallet just owns 10% of the $NINJA supply — which will be used to distribute during the game. There's no team supply. The token is just meant for in-game rewards and symbolise the first vibe-coded token on Solana.
+      </footer>
     </div>
   );
 }
