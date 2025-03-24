@@ -6,6 +6,8 @@ const TOKEN_MINT = new PublicKey('5H7zBHxqGZyGkvhnWT2HTcEHoXuCkehzzdeANnt5pump')
 // House wallet address that will send the rewards
 const HOUSE_WALLET = new PublicKey('FJFbqp53DiyFcSAwf9VgMQqs4eyCnpNqEK1WrtJoEWVj');
 
+const BACKEND_URL = process.env.VITE_BACKEND_URL || 'http://localhost:3001';
+
 // Calculate reward based on score
 export function getSliceReward(score, playerAddress) {
   // Check for special reward eligibility
@@ -22,11 +24,7 @@ export function getSliceReward(score, playerAddress) {
   if (score < 120) return 3000;
   return 6000;
 }
-// Debug environment variables
-console.log('Environment variables:', {
-  VITE_AUTH_TOKEN: import.meta.env.VITE_AUTH_TOKEN,
-  allEnv: import.meta.env
-});
+
 
 // Transfer tokens to player through backend API
 export async function transferTokens(playerAddress, score) {
@@ -39,7 +37,7 @@ export async function transferTokens(playerAddress, score) {
 
     console.log('Initiating token transfer:', { playerAddress, score });
 
-    const response = await fetch('/api/transfer-tokens', {
+    const response = await fetch(`${BACKEND_URL}/api/transfer-tokens`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -4,7 +4,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, Transaction, SystemProgram, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { connection } from '../constants';
 import { getSliceReward, transferTokens } from '../token';
-const BACKEND_URL = 'http://localhost:3001';
+const BACKEND_URL = process.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
 const Game = ({ isWalletConnected = false, sendTransaction }) => {
   const [gameState, setGameState] = useState({
