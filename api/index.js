@@ -8,6 +8,7 @@ import rateLimit from 'express-rate-limit';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import nacl from 'tweetnacl';
+import { Redis } from '@upstash/redis'
 
 dotenv.config();
 
@@ -45,16 +46,20 @@ const PAYER_SOFT_WALLET = Keypair.fromSecretKey(bs58.decode(process.env.PAYER_SO
 const HOUSE_WALLET = PAYER_SOFT_WALLET.publicKey;
 const auth_token = process.env.AUTH_TOKEN;
 
-// Add this with other constants at the top
-const specialRewardsClaimed = new Set(); // Store addresses that have claimed the special reward
+// Add Redis client initialization after other constants
+const redis = new Redis.fromEnv();
 
-// Modified reward function
-function getSliceReward(score, playerAddress) {
+// Replace the in-memory Set with Redis-based function
+async function getSliceReward(score, playerAddress) {
   // Check for special reward eligibility
-  if (score >= 1000 && !specialRewardsClaimed.has(playerAddress)) {
-    // Mark this player as received
-    specialRewardsClaimed.add(playerAddress);
-    return 50000;
+  if (score >= 1000) {
+    // Check if player has already claimed special reward
+    const hasClaimedSpecial = await redis.get(`special_reward:${playerAddress}`);
+    if (!hasClaimedSpecial) {
+      // Mark this player as received in Redis
+      await redis.set(`special_reward:${playerAddress}`, true);
+      return 50000;
+    }
   }
   
   // Regular reward tiers
@@ -130,7 +135,7 @@ app.post('/api/transfer-tokens', async (req, res) => {
     }
 
     const player = new PublicKey(playerAddress);
-    const amount = getSliceReward(score, playerAddress);
+    const amount = await getSliceReward(score, playerAddress);
 
     if (amount <= 0) {
       return res.status(400).json({ error: 'Score too low to receive rewards' });
@@ -309,7 +314,8 @@ app.post('/api/verify-wallet', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-}); 
+// Convert Express app to serverless function
+const handler = app;
+
+// Export the handler
+export default handler; 

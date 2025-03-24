@@ -7,16 +7,21 @@ const TOKEN_MINT = new PublicKey('5H7zBHxqGZyGkvhnWT2HTcEHoXuCkehzzdeANnt5pump')
 const HOUSE_WALLET = new PublicKey('FJFbqp53DiyFcSAwf9VgMQqs4eyCnpNqEK1WrtJoEWVj');
 
 // Calculate reward based on score
-export function getSliceReward(score) {
+export function getSliceReward(score, playerAddress) {
+  // Check for special reward eligibility
+  if (score >= 1000) {
+    return 50000;
+  }
+  
+  // Regular reward tiers
   if (score < 20) return 0; 
   if (score < 40) return 500;
   if (score < 60) return 1000;
-  if (score < 80) return 1500 ;
+  if (score < 80) return 1500;
   if (score < 100) return 2000;
   if (score < 120) return 3000;
   return 6000;
 }
-
 // Debug environment variables
 console.log('Environment variables:', {
   VITE_AUTH_TOKEN: import.meta.env.VITE_AUTH_TOKEN,
@@ -26,14 +31,19 @@ console.log('Environment variables:', {
 // Transfer tokens to player through backend API
 export async function transferTokens(playerAddress, score) {
   try {
+    // Get JWT token from localStorage
+    const jwtToken = localStorage.getItem('gameToken');
+    if (!jwtToken) {
+      throw new Error('No authentication token found. Please login first.');
+    }
+
     console.log('Initiating token transfer:', { playerAddress, score });
-    console.log('Auth token:', import.meta.env.VITE_AUTH_TOKEN ? 'Present' : 'Missing');
 
     const response = await fetch('http://localhost:3001/api/transfer-tokens', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${import.meta.env.VITE_AUTH_TOKEN}`
+        'Authorization': `Bearer ${jwtToken}` // Using JWT token instead of VITE_AUTH_TOKEN
       },
       body: JSON.stringify({
         playerAddress,
@@ -45,6 +55,11 @@ export async function transferTokens(playerAddress, score) {
     console.log('Server response:', data);
 
     if (!response.ok) {
+      // Handle specific authentication errors
+      if (response.status === 401) {
+        localStorage.removeItem('jwt_token'); // Clear invalid token
+        throw new Error('Authentication expired. Please login again.');
+      }
       throw new Error(data.error || data.details || 'Failed to transfer tokens');
     }
 

@@ -4,6 +4,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, Transaction, SystemProgram, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { connection } from '../constants';
 import { getSliceReward, transferTokens } from '../token';
+const BACKEND_URL = 'http://localhost:3001';
 
 const Game = ({ isWalletConnected = false, sendTransaction }) => {
   const [gameState, setGameState] = useState({
@@ -14,7 +15,7 @@ const Game = ({ isWalletConnected = false, sendTransaction }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [copyStatus, setCopyStatus] = useState({ house: false, contract: false });
   const [rewardStatus, setRewardStatus] = useState({ loading: false, success: false, error: null });
-  const { publicKey } = useWallet();
+  const { publicKey , signMessage} = useWallet();
 
   const [currentScreen, setCurrentScreen] = useState('start'); // 'start', 'game', 'gameOver'
   const canvasRef = useRef(null);
@@ -55,10 +56,45 @@ const Game = ({ isWalletConnected = false, sendTransaction }) => {
 
     setIsProcessing(true);
     try {
-      // Create a transaction to deduct 0.01 SOL
+      // Step 1: Get nonce from server
+      const nonceResponse = await fetch(`${BACKEND_URL}/api/get-nonce`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer solanafruitninja`
+        }
+      });
+      const nonceData = await nonceResponse.json();
+      if (!nonceData.success) throw new Error('Failed to get nonce');
+
+      // Step 2: Create message with nonce
+      const message = `Verify wallet ownership: ${nonceData.nonce}`;
+      const messageBytes = new TextEncoder().encode(message);
+
+      // Step 3: Sign message with wallet
+      const signature = await signMessage(messageBytes);
+
+      // Step 4: Verify wallet with server
+      const verifyResponse = await fetch(`${BACKEND_URL}/api/verify-wallet`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          signature: Buffer.from(signature).toString('base64'),
+          publicKey: publicKey.toString(),
+          message,
+          nonce: nonceData.nonce
+        })
+      });
+      const verifyData = await verifyResponse.json();
+      if (!verifyData.success) throw new Error('Failed to verify wallet');
+
+      // Store JWT token for future use
+      localStorage.setItem('gameToken', verifyData.token);
+
+      // Continue with original game initialization
       const transaction = new Transaction();
-      
-      // Add transfer instruction of 0.01 SOL
       transaction.add(
         SystemProgram.transfer({
           fromPubkey: publicKey,
@@ -67,15 +103,9 @@ const Game = ({ isWalletConnected = false, sendTransaction }) => {
         })
       );
 
-      console.log('Sending transaction with wallet:', publicKey.toString());
+      const tx_signature = await sendTransaction(transaction, connection);
+      await connection.confirmTransaction(tx_signature);
 
-      // Send the transaction
-      const signature = await sendTransaction(transaction, connection);
-      await connection.confirmTransaction(signature);
-
-      console.log("Transaction sent with signature:", signature);
-
-      // If transaction is successful, start the game
       setGameState({
         score: 0,
         lives: 3,
@@ -83,8 +113,8 @@ const Game = ({ isWalletConnected = false, sendTransaction }) => {
       });
       setCurrentScreen('game');
     } catch (error) {
-      console.error('Error sending transaction:', error);
-      alert('Failed to process transaction. Please make sure you have enough SOL.');
+      console.error('Error initializing game:', error);
+      alert('Failed to initialize game. Please try again.');
     } finally {
       setIsProcessing(false);
     }
