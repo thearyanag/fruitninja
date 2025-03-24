@@ -314,6 +314,12 @@ app.post('/api/verify-wallet', async (req, res) => {
   }
 });
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
+
 // Convert Express app to serverless function
 const handler = app;
 
