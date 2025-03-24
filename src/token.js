@@ -39,7 +39,7 @@ export async function transferTokens(playerAddress, score) {
 
     console.log('Initiating token transfer:', { playerAddress, score });
 
-    const response = await fetch('http://localhost:3001/api/transfer-tokens', {
+    const response = await fetch('/api/transfer-tokens', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

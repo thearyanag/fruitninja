@@ -47,7 +47,7 @@ const HOUSE_WALLET = PAYER_SOFT_WALLET.publicKey;
 const auth_token = process.env.AUTH_TOKEN;
 
 // Add Redis client initialization after other constants
-const redis = new Redis.fromEnv();
+const redis = Redis.fromEnv();
 
 // Replace the in-memory Set with Redis-based function
 async function getSliceReward(score, playerAddress) {
