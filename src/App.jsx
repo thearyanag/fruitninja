@@ -31,28 +31,6 @@ function App() {
     }
   };
 
-  const handleAddBalance = async () => {
-    if (!publicKey) return;
-
-    setIsLoading(true);
-    try {
-      const transaction = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: publicKey,
-          toPubkey: new PublicKey('FJFbqp53DiyFcSAwf9VgMQqs4eyCnpNqEK1WrtJoEWVj'),
-          lamports: 0.01 * LAMPORTS_PER_SOL
-        })
-      );
-
-      const signature = await sendTransaction(transaction, connection);
-      await connection.confirmTransaction(signature);
-      await fetchBalance(publicKey.toString());
-    } catch (error) {
-      console.error('Error adding balance:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   useEffect(() => {
     if (publicKey) {
@@ -80,7 +58,6 @@ function App() {
                     <span className="balance">{formatBalance(balance)}</span>
                     <button 
                       className="add-balance-button" 
-                      onClick={handleAddBalance}
                       disabled={isLoading}
                       title="Add Balance"
                     >
