@@ -760,3 +760,27 @@ button:focus-visible {
   font-family: 'PPNeueBit', monospace;
   text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
 }
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  padding: 8px 20px;
+  text-align: center;
+  border-top: 1px solid var(--primary-color);
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.4;
+  z-index: 1000;
+  font-family: 'PP Neue Bit', monospace;
+}
+
+@media (max-width: 768px) {
+  .footer {
+    font-size: 0.65rem;
+    padding: 6px 15px;
+  }
+}

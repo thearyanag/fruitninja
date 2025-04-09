@@ -274,6 +274,13 @@ const Game = ({ isWalletConnected = false, sendTransaction }) => {
   const resetGame = () => {
     setIsClaimed(false);
     setIsClaimProcessing(false);
+    setRewardStatus({ loading: false, success: false, error: null });
+    setGameState({
+      score: 0,
+      lives: 3,
+      isPlaying: false
+    });
+    setCurrentScreen('start');
     initGame();
   };
 
